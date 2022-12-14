@@ -52,7 +52,7 @@ def translate_graph_to_global_coordinates(points: [(float, float)]) -> [(float, 
     return translated_points
 
 
-def wave_equation(x, amplitude, wave_length, omega, time):
+def wave_equation(x: float, amplitude: float, wave_length: float, omega: float, time: float):
     k = 2 * pi / wave_length
     y = 2 * amplitude * sin(k * x) * cos(omega * time)
     return y
@@ -60,21 +60,20 @@ def wave_equation(x, amplitude, wave_length, omega, time):
 
 def main():
     pg.init()
-
     screen = pg.display.set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
-
     clock = pg.time.Clock()
 
     t = 0
     while True:
         t %= 120
-        # Process player inputs.
+
+        # Process player inputs
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit
 
-        # Do logical updates here.
+        # Do logical updates here
         points = []
         for i in range(POINTS_AMOUNT):
             x = i * 2. * pi / POINTS_AMOUNT
@@ -85,7 +84,7 @@ def main():
         # Translate local coordinates to global system
         translated_points = translate_graph_to_global_coordinates(points)
 
-        # Render the graphics here.
+        # Render the graphics here
         draw_main_components(screen=screen)
         draw_coordination_system(screen=screen)
         # Temp grid
