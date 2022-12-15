@@ -66,6 +66,17 @@ def wave_equation(x: float, amplitude: float, wave_length: float, omega: float, 
     return y
 
 
+def superpose_waves(wave_points: list[(float, float)]) -> [(float, float)]:
+    superposed_wave_points = []
+    for i in range(POINTS_AMOUNT):
+        x = wave_points[0][i][0]
+        y = 0
+        for j in range(len(wave_points)):
+            y += wave_points[j][i][1]
+        superposed_wave_points.append((x, y))
+    return superposed_wave_points
+
+
 class Harmonic:
     def __init__(self, amplitude: float, omega: float, wave_length: float,
                  number: int, color: Colors, is_on: bool = True):
@@ -106,7 +117,7 @@ def main():
 
         chosen_harmonics = [0, 1, 2, 3, 4]
 
-        lines = []
+        wave_points = []
         for n in chosen_harmonics:
             harmonic = available_harmonics[n]
             points = []
@@ -121,21 +132,14 @@ def main():
                 closed=False,
                 points=translate_graph_to_global_coordinates(points))
 
-            lines.append(points)
+            wave_points.append(points)
 
-        summed_points = []
-        for i in range(POINTS_AMOUNT):
-            x = lines[0][i][0]
-            y = 0
-            for j in range(len(chosen_harmonics)):
-                y += lines[j][i][1]
-            summed_points.append((x, y))
-
+        superposed_wave_points = superpose_waves(wave_points=wave_points)
         pg.draw.lines(
             surface=screen,
             color=Colors.amp_orange,
             closed=False,
-            points=translate_graph_to_global_coordinates(summed_points),
+            points=translate_graph_to_global_coordinates(superposed_wave_points),
             width=4)
 
         draw_control_panels(screen=screen)
