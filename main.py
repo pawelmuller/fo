@@ -1,35 +1,30 @@
-from math import pi, sin, cos
+from math import sin, cos
 
 import pygame as pg
 
-from components.constants import Colors
-
-
-POINTS_AMOUNT = 600
-
-
-SURFACE_WIDTH = 1280
-SURFACE_HEIGHT = 720
-
-animation_rectangle_width = SURFACE_WIDTH
-animation_rectangle_height = 420
-animation_coordination_system_origin = (0.1 * animation_rectangle_width, 0.5 * animation_rectangle_height)
-
-control_rectangle_width = SURFACE_WIDTH
-control_rectangle_height = 300
-
-ANIMATION_RECTANGLE = pg.Rect(0, 0, animation_rectangle_width, animation_rectangle_height)
-CONTROLS_RECTANGLE = pg.Rect(0, 420, control_rectangle_width, control_rectangle_height)
-
-max_harmonics = 5
-available_harmonics_properties = [(i, 2 * pi / i) for i in range(1, max_harmonics)]
-
-line_colors = (Colors.contrast_light, Colors.blue, Colors.cyan, Colors.green, Colors.magenta)
+from components.constants import *
+from components.widgets import ControlPanel
 
 
 def draw_main_components(screen):
     pg.draw.rect(screen, Colors.background_dark, ANIMATION_RECTANGLE)
     pg.draw.rect(screen, Colors.background_semi_dark, CONTROLS_RECTANGLE)
+
+
+def draw_control_panels(screen):
+    surfaces = []
+    for harmonic in available_harmonics:
+        control_panel = ControlPanel(
+            screen=screen,
+            harmonic=harmonic,
+            left=control_panels_start_pos[0],
+            top=control_panels_start_pos[1] + control_panels_height * (harmonic.number - 1),
+            width=control_rectangle_width,
+            height=control_panels_height
+        )
+        control_panel.draw()
+        surfaces.append((control_panel.surface, (control_panel.left, control_panel.top)))
+    screen.blits(surfaces)
 
 
 def draw_coordination_system(screen):
@@ -47,9 +42,9 @@ def draw_coordination_system(screen):
 
 def draw_grid(screen):
     for i in range(1, 10):
-        pg.draw.line(screen, (90, 90, 90), (animation_rectangle_width / 10 * i, 0),
+        pg.draw.line(screen, Colors.background_semi_dark, (animation_rectangle_width / 10 * i, 0),
                      (animation_rectangle_width / 10 * i, animation_rectangle_height))
-        pg.draw.line(screen, (90, 90, 90), (0, animation_rectangle_height / 10 * i),
+        pg.draw.line(screen, Colors.background_semi_dark, (0, animation_rectangle_height / 10 * i),
                      (animation_rectangle_width, animation_rectangle_height / 10 * i))
 
 
@@ -59,7 +54,7 @@ def translate_graph_to_global_coordinates(points: [(float, float)]) -> [(float, 
     for x, y in points:
         translated_point = (
             x * 0.8 * animation_rectangle_width / 2. / pi + origin_x,
-            y * 0.8 * animation_rectangle_height / 4. + origin_y
+            y * 0.8 * animation_rectangle_height / 16. + origin_y
         )
         translated_points.append(translated_point)
     return translated_points
@@ -71,14 +66,31 @@ def wave_equation(x: float, amplitude: float, wave_length: float, omega: float, 
     return y
 
 
+class Harmonic:
+    def __init__(self, amplitude: float, omega: float, wave_length: float,
+                 number: int, color: Colors, is_on: bool = True):
+        self.number = number
+        self.amplitude = amplitude
+        self.omega = omega
+        self.wave_length = wave_length
+        self.color = color
+        self.is_on = is_on
+
+    def calculate(self, x, time) -> (float, float):
+        y = wave_equation(
+            x=x,
+            amplitude=self.amplitude,
+            wave_length=self.wave_length,
+            omega=self.omega,
+            time=time)
+        return x, y
+
+
 def main():
     pg.init()
     pg.display.set_caption('Fala stojąca w strunie')
     screen = pg.display.set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
     clock = pg.time.Clock()
-
-    chosen_harmonics = (1, 2)
-    colors = line_colors[:len(chosen_harmonics)]
 
     t = 0
     while True:
@@ -88,34 +100,28 @@ def main():
                 pg.quit()
                 raise SystemExit
 
-        # Do logical updates here
-        lines = []
-        for harmonic in chosen_harmonics:
-            points = []
-            for i in range(POINTS_AMOUNT):
-                x = i * 2. * pi / POINTS_AMOUNT
-                amplitude = 1
-                y = wave_equation(
-                    x=x,
-                    amplitude=amplitude,
-                    wave_length=available_harmonics_properties[harmonic - 1][1],
-                    omega=0.1,
-                    time=t)
-                points.append((x, y))
-            lines.append(points)
-
-        # Render the graphics here
         draw_main_components(screen=screen)
         draw_grid(screen=screen)
         draw_coordination_system(screen=screen)
 
-        for points, color in zip(lines, colors):
+        chosen_harmonics = [0, 1, 2, 3, 4]
+
+        lines = []
+        for n in chosen_harmonics:
+            harmonic = available_harmonics[n]
+            points = []
+            for i in range(POINTS_AMOUNT):
+                x = i * 2. * pi / POINTS_AMOUNT
+                point = harmonic.calculate(x, t)
+                points.append(point)
+
             pg.draw.lines(
                 surface=screen,
-                color=color,
+                color=harmonic.color,
                 closed=False,
-                points=translate_graph_to_global_coordinates(points),
-                width=1)
+                points=translate_graph_to_global_coordinates(points))
+
+            lines.append(points)
 
         summed_points = []
         for i in range(POINTS_AMOUNT):
@@ -132,11 +138,20 @@ def main():
             points=translate_graph_to_global_coordinates(summed_points),
             width=4)
 
-        # Updates
-        pg.display.flip()  # Refresh on-screen display
-        clock.tick(60)  # wait until next frame (at 60 FPS)
+        draw_control_panels(screen=screen)
+
+        pg.display.flip()
+        clock.tick(60)
         t += .1
 
 
 if __name__ == "__main__":
+    available_harmonics = [
+        Harmonic(number=1, amplitude=1, omega=0.1, wave_length=2 * pi / 1, color=Colors.contrast_light),
+        Harmonic(number=2, amplitude=1, omega=0.1, wave_length=2 * pi / 2, color=Colors.magenta),
+        Harmonic(number=3, amplitude=1, omega=0.1, wave_length=2 * pi / 3, color=Colors.yellow, is_on=False),
+        Harmonic(number=4, amplitude=1, omega=0.1, wave_length=2 * pi / 4, color=Colors.green),
+        Harmonic(number=5, amplitude=1, omega=0.1, wave_length=2 * pi / 5, color=Colors.cyan),
+    ]
+
     main()

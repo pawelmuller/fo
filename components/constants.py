@@ -1,3 +1,8 @@
+from math import pi
+
+import pygame as pg
+
+
 class Colors:
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -13,6 +18,7 @@ class Colors:
     # Backgrounds
     background_dark = (16, 23, 38)
     background_semi_dark = (38, 41, 61)
+    background_semi_dark_off = (32, 34, 51)
 
     # Contrasting
     contrast_light = (234, 235, 252)
@@ -21,3 +27,31 @@ class Colors:
 
     # Special
     amp_orange = (236, 103, 37)
+    transparent = (1, 1, 1)
+
+
+POINTS_AMOUNT = 600
+
+SURFACE_WIDTH = 1280
+SURFACE_HEIGHT = 720
+
+animation_rectangle_width = 920
+animation_rectangle_height = SURFACE_HEIGHT
+animation_coordination_system_origin = (0.1 * animation_rectangle_width, 0.5 * animation_rectangle_height)
+
+control_rectangle_width = 360
+control_rectangle_height = SURFACE_HEIGHT
+
+ANIMATION_RECTANGLE = pg.Rect(0, 0, animation_rectangle_width, animation_rectangle_height)
+CONTROLS_RECTANGLE = pg.Rect(animation_rectangle_width, 0, control_rectangle_width, control_rectangle_height)
+
+
+control_panels_start_pos = (animation_rectangle_width, 0.15 * control_rectangle_height)
+control_panels_height = 0.15 * control_rectangle_height
+
+# font = pg.font.SysFont("sourcesanspro", 12)
+
+max_harmonics = 5
+available_harmonics_properties = [(i, 2 * pi / i) for i in range(1, max_harmonics + 1)]
+
+line_colors = (Colors.contrast_light, Colors.blue, Colors.cyan, Colors.green, Colors.magenta)
