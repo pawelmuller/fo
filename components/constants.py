@@ -35,12 +35,13 @@ POINTS_AMOUNT = 600
 SURFACE_WIDTH = 1280
 SURFACE_HEIGHT = 720
 
-animation_rectangle_width = 920
+control_rectangle_width = 360
+control_rectangle_height = SURFACE_HEIGHT
+
+animation_rectangle_width = SURFACE_WIDTH - control_rectangle_width
 animation_rectangle_height = SURFACE_HEIGHT
 animation_coordination_system_origin = (0.1 * animation_rectangle_width, 0.5 * animation_rectangle_height)
 
-control_rectangle_width = 360
-control_rectangle_height = SURFACE_HEIGHT
 
 ANIMATION_RECTANGLE = pg.Rect(0, 0, animation_rectangle_width, animation_rectangle_height)
 CONTROLS_RECTANGLE = pg.Rect(animation_rectangle_width, 0, control_rectangle_width, control_rectangle_height)
