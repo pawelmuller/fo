@@ -92,7 +92,7 @@ def main():
     screen = pg.display.set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
     clock = pg.time.Clock()
 
-    t = 0
+    time = 0
     while True:
         # Process player inputs
         for event in pg.event.get():
@@ -112,7 +112,7 @@ def main():
             points = []
             for i in range(POINTS_AMOUNT):
                 x = i * 2. * pi / POINTS_AMOUNT
-                point = harmonic.calculate(x, t)
+                point = harmonic.calculate(x, time)
                 points.append(point)
 
             pg.draw.lines(
@@ -142,7 +142,7 @@ def main():
 
         pg.display.flip()
         clock.tick(60)
-        t += .1
+        time += .1
 
 
 if __name__ == "__main__":
