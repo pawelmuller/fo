@@ -3,6 +3,9 @@ from components.constants import *
 
 
 class ControlPanel:
+    """
+    This is a component that allows to control properties of a harmonic
+    """
     color_circle_radius = 0.01 * SURFACE_HEIGHT
 
     def __init__(self, *, screen, harmonic, left, top, width, height):
