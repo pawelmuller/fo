@@ -33,7 +33,7 @@ class ControlPanel:
         )
         title_text = self.sub_header_font.render(f"{self.harmonic.number}. harmoniczna", True, Colors.contrast_light)
         amplitude_text = self.font.render("A", True, Colors.contrast_light_blue)
-        omega_text = self.font.render("w", True, Colors.contrast_light_blue)
+        omega_text = self.font.render("ω", True, Colors.contrast_light_blue)
         self.surface.blit(title_text, (0.1 * self.width, 0.07 * self.height))
 
         self.surface.blit(amplitude_text, (0.04 * self.width, 0.35 * self.height))

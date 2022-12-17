@@ -17,7 +17,7 @@ def draw_control_panel_header(screen, text_font, header_font):
 
     header = header_font.render("Właściwości fal i harmonicznych", True, Colors.white)
     text_1 = text_font.render("A - amplituda", True, Colors.contrast_light_blue)
-    text_2 = text_font.render("w - częstość kołowa", True, Colors.contrast_light_blue)
+    text_2 = text_font.render("ω - częstość kołowa", True, Colors.contrast_light_blue)
     header_surface.blit(header, (0.05 * control_rectangle_width, 0.1 * control_panels_height))
     header_surface.blit(text_1, (0.05 * control_rectangle_width, 0.5 * control_panels_height))
     header_surface.blit(text_2, (0.05 * control_rectangle_width, 0.7 * control_panels_height))
