@@ -50,8 +50,6 @@ CONTROLS_RECTANGLE = pg.Rect(animation_rectangle_width, 0, control_rectangle_wid
 control_panels_start_pos = (animation_rectangle_width, 0.15 * control_rectangle_height)
 control_panels_height = 0.15 * control_rectangle_height
 
-# font = pg.font.SysFont("sourcesanspro", 12)
-
 max_harmonics = 5
 available_harmonics_properties = [(i, 2 * pi / i) for i in range(1, max_harmonics + 1)]
 

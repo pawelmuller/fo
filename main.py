@@ -11,7 +11,29 @@ def draw_main_components(screen):
     pg.draw.rect(screen, Colors.background_semi_dark, CONTROLS_RECTANGLE)
 
 
-def draw_control_panels(screen):
+def draw_control_panel_header(screen, text_font, header_font):
+    header_surface = pg.surface.Surface((control_rectangle_width, control_panels_height))
+    header_surface.set_colorkey(Colors.black)
+
+    header = header_font.render("Właściwości fal i harmonicznych", True, Colors.white)
+    text_1 = text_font.render("A - amplituda", True, Colors.contrast_light_blue)
+    text_2 = text_font.render("w - częstość kołowa", True, Colors.contrast_light_blue)
+    header_surface.blit(header, (0.05 * control_rectangle_width, 0.1 * control_panels_height))
+    header_surface.blit(text_1, (0.05 * control_rectangle_width, 0.5 * control_panels_height))
+    header_surface.blit(text_2, (0.05 * control_rectangle_width, 0.7 * control_panels_height))
+    screen.blit(header_surface, (animation_rectangle_width, 0))
+
+
+def draw_control_panel_footer(screen, sub_header_font):
+    header_surface = pg.surface.Surface((control_rectangle_width, control_panels_height * 2 / 3))
+    header_surface.set_colorkey(Colors.black)
+
+    sub_header_font = sub_header_font.render("Superpozycja fal", True, Colors.white)
+    header_surface.blit(sub_header_font, (0.05 * control_rectangle_width, 0.05 * control_panels_height))
+    screen.blit(header_surface, (animation_rectangle_width, 0))
+
+
+def draw_control_panels(screen, text_font, sub_header_font):
     surfaces = []
     for harmonic in available_harmonics:
         control_panel = ControlPanel(
@@ -20,10 +42,13 @@ def draw_control_panels(screen):
             left=control_panels_start_pos[0],
             top=control_panels_start_pos[1] + control_panels_height * (harmonic.number - 1),
             width=control_rectangle_width,
-            height=control_panels_height
+            height=control_panels_height,
+            font=text_font,
+            sub_header_font=sub_header_font
         )
         control_panel.draw()
         surfaces.append((control_panel.surface, (control_panel.left, control_panel.top)))
+
     screen.blits(surfaces)
 
 
@@ -60,12 +85,6 @@ def translate_graph_to_global_coordinates(points: [(float, float)]) -> [(float, 
     return translated_points
 
 
-def wave_equation(x: float, amplitude: float, wave_length: float, omega: float, time: float):
-    k = 2 * pi / wave_length
-    y = 2 * amplitude * sin(k * x) * cos(omega * time)
-    return y
-
-
 def superpose_waves(wave_points: list[(float, float)]) -> [(float, float)]:
     superposed_wave_points = []
     for i in range(POINTS_AMOUNT):
@@ -86,15 +105,49 @@ class Harmonic:
         self.wave_length = wave_length
         self.color = color
         self.is_on = is_on
+        self.points = []
 
-    def calculate(self, x, time) -> (float, float):
-        y = wave_equation(
-            x=x,
-            amplitude=self.amplitude,
-            wave_length=self.wave_length,
-            omega=self.omega,
-            time=time)
+    def calculate(self, x: float, time: float) -> (float, float):
+        k = 2 * pi / self.wave_length
+        y = 2 * self.amplitude * sin(k * x) * cos(self.omega * time)
         return x, y
+
+    def calculate_wave_points(self, time) -> [(float, float)]:
+        points = []
+        for i in range(POINTS_AMOUNT):
+            x = i * 2. * pi / POINTS_AMOUNT
+            point = self.calculate(x, time)
+            points.append(point)
+
+        self.points = points
+        return points
+
+
+class Wave:
+    def __init__(self, points, color, width: int = 1):
+        self.points = points
+        self.color = color
+        self.width = width
+
+    def __add__(self, other):
+        if len(self.points) != len(other.points):
+            raise ArithmeticError
+
+        superposed_wave_points = []
+        for self_point, other_point in zip(self.points, other.points):
+            new_point = (self_point[0], self_point[1] + other_point[1])
+            superposed_wave_points.append(new_point)
+
+        return Wave(points=superposed_wave_points, color=self.color, width=self.width)
+
+    def draw(self, screen):
+        pg.draw.lines(
+            surface=screen,
+            color=self.color,
+            closed=False,
+            points=translate_graph_to_global_coordinates(self.points),
+            width=self.width
+        )
 
 
 def main():
@@ -102,6 +155,10 @@ def main():
     pg.display.set_caption('Fala stojąca w strunie')
     screen = pg.display.set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
     clock = pg.time.Clock()
+
+    text_font = pg.font.SysFont("sourcesanspro", 16)
+    header_font = pg.font.SysFont("sourcesanspro", 24)
+    sub_header_font = pg.font.SysFont("sourcesanspro", 20)
 
     time = 0
     while True:
@@ -114,35 +171,20 @@ def main():
         draw_main_components(screen=screen)
         draw_grid(screen=screen)
         draw_coordination_system(screen=screen)
+        draw_control_panel_header(screen=screen, text_font=text_font, header_font=header_font)
 
-        chosen_harmonics = [0, 1, 2, 3, 4]
+        superposed_wave_initial_points = [(i * 2. * pi / POINTS_AMOUNT, 0) for i in range(POINTS_AMOUNT)]
+        superposed_wave = Wave(points=superposed_wave_initial_points, color=Colors.amp_orange, width=4)
+        for harmonic in available_harmonics:
+            if harmonic.is_on is False:
+                continue
+            points = harmonic.calculate_wave_points(time=time)
+            wave = Wave(points, harmonic.color)
+            wave.draw(screen=screen)
+            superposed_wave += wave
 
-        wave_points = []
-        for n in chosen_harmonics:
-            harmonic = available_harmonics[n]
-            points = []
-            for i in range(POINTS_AMOUNT):
-                x = i * 2. * pi / POINTS_AMOUNT
-                point = harmonic.calculate(x, time)
-                points.append(point)
-
-            pg.draw.lines(
-                surface=screen,
-                color=harmonic.color,
-                closed=False,
-                points=translate_graph_to_global_coordinates(points))
-
-            wave_points.append(points)
-
-        superposed_wave_points = superpose_waves(wave_points=wave_points)
-        pg.draw.lines(
-            surface=screen,
-            color=Colors.amp_orange,
-            closed=False,
-            points=translate_graph_to_global_coordinates(superposed_wave_points),
-            width=4)
-
-        draw_control_panels(screen=screen)
+        superposed_wave.draw(screen=screen)
+        draw_control_panels(screen=screen, text_font=text_font, sub_header_font=sub_header_font)
 
         pg.display.flip()
         clock.tick(60)
