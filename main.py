@@ -33,8 +33,16 @@ def draw_control_panel_footer(screen, sub_header_font):
     screen.blit(header_surface, (animation_rectangle_width, 0))
 
 
-def draw_control_panels(screen, text_font, sub_header_font):
+def draw_control_panels(screen, control_panels: list[ControlPanel]):
     surfaces = []
+    for control_panel in control_panels:
+        control_panel.draw()
+        surfaces.append((control_panel.surface, (control_panel.left, control_panel.top)))
+    screen.blits(surfaces)
+
+
+def create_control_panels(screen, text_font, sub_header_font) -> [ControlPanel]:
+    control_panels = []
     for harmonic in available_harmonics:
         control_panel = ControlPanel(
             screen=screen,
@@ -46,10 +54,8 @@ def draw_control_panels(screen, text_font, sub_header_font):
             font=text_font,
             sub_header_font=sub_header_font
         )
-        control_panel.draw()
-        surfaces.append((control_panel.surface, (control_panel.left, control_panel.top)))
-
-    screen.blits(surfaces)
+        control_panels.append(control_panel)
+    return control_panels
 
 
 def draw_coordination_system(screen):
@@ -160,19 +166,26 @@ def main():
     header_font = pg.font.SysFont("sourcesanspro", 24)
     sub_header_font = pg.font.SysFont("sourcesanspro", 20)
 
+    control_panels = create_control_panels(screen=screen, text_font=text_font, sub_header_font=sub_header_font)
+
     time = 0
     while True:
-        # Process player inputs
+        # Handling events
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 raise SystemExit
+            for control_panel in control_panels:
+                control_panel.handle_event(event=event)
 
+        # Drawing main components
         draw_main_components(screen=screen)
         draw_grid(screen=screen)
         draw_coordination_system(screen=screen)
         draw_control_panel_header(screen=screen, text_font=text_font, header_font=header_font)
+        draw_control_panels(screen=screen, control_panels=control_panels)
 
+        # Wave physics and superposition
         superposed_wave_initial_points = [(i * 2. * pi / POINTS_AMOUNT, 0) for i in range(POINTS_AMOUNT)]
         superposed_wave = Wave(points=superposed_wave_initial_points, color=Colors.amp_orange, width=4)
         for harmonic in available_harmonics:
@@ -184,8 +197,8 @@ def main():
             superposed_wave += wave
 
         superposed_wave.draw(screen=screen)
-        draw_control_panels(screen=screen, text_font=text_font, sub_header_font=sub_header_font)
 
+        # Refreshing screen
         pg.display.flip()
         clock.tick(60)
         time += .1
@@ -194,10 +207,10 @@ def main():
 if __name__ == "__main__":
     available_harmonics = [
         Harmonic(number=1, amplitude=1, omega=0.1, wave_length=2 * pi / 1, color=Colors.contrast_light),
-        Harmonic(number=2, amplitude=1, omega=0.1, wave_length=2 * pi / 2, color=Colors.magenta),
-        Harmonic(number=3, amplitude=1, omega=0.1, wave_length=2 * pi / 3, color=Colors.yellow, is_on=False),
-        Harmonic(number=4, amplitude=1, omega=0.1, wave_length=2 * pi / 4, color=Colors.green),
-        Harmonic(number=5, amplitude=1, omega=0.1, wave_length=2 * pi / 5, color=Colors.cyan),
+        Harmonic(number=2, amplitude=1, omega=0.1, wave_length=2 * pi / 2, color=Colors.magenta, is_on=True),
+        Harmonic(number=3, amplitude=1, omega=0.1, wave_length=2 * pi / 3, color=Colors.yellow, is_on=True),
+        Harmonic(number=4, amplitude=1, omega=0.1, wave_length=2 * pi / 4, color=Colors.green, is_on=True),
+        Harmonic(number=5, amplitude=1, omega=0.1, wave_length=2 * pi / 5, color=Colors.cyan, is_on=True),
     ]
 
     main()
