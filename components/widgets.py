@@ -110,7 +110,6 @@ class Slider:
             self.value = self.minimum_value
         if self.value > self.maximum_value:
             self.value = self.maximum_value
-        print(self.value)
 
     def handle_event(self, event, absolute_left, absolute_top):
         mouse_absolute_position_x, mouse_absolute_position_y = pg.mouse.get_pos()
