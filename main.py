@@ -206,11 +206,11 @@ def main():
 
 if __name__ == "__main__":
     available_harmonics = [
-        Harmonic(number=1, amplitude=1, omega=0.1, wave_length=2 * pi / 1, color=Colors.contrast_light),
-        Harmonic(number=2, amplitude=1, omega=0.1, wave_length=2 * pi / 2, color=Colors.magenta, is_on=True),
-        Harmonic(number=3, amplitude=1, omega=0.1, wave_length=2 * pi / 3, color=Colors.yellow, is_on=True),
-        Harmonic(number=4, amplitude=1, omega=0.1, wave_length=2 * pi / 4, color=Colors.green, is_on=True),
-        Harmonic(number=5, amplitude=1, omega=0.1, wave_length=2 * pi / 5, color=Colors.cyan, is_on=True),
+        Harmonic(number=1, amplitude=1, omega=0.1, wave_length=2 * pi / 0.5, color=Colors.contrast_light),
+        Harmonic(number=2, amplitude=1, omega=0.1, wave_length=2 * pi / 1, color=Colors.magenta, is_on=True),
+        Harmonic(number=3, amplitude=1, omega=0.1, wave_length=2 * pi / 2, color=Colors.yellow, is_on=True),
+        Harmonic(number=4, amplitude=1, omega=0.1, wave_length=2 * pi / 3, color=Colors.green, is_on=True),
+        Harmonic(number=5, amplitude=1, omega=0.1, wave_length=2 * pi / 4, color=Colors.cyan, is_on=True),
     ]
 
     main()
