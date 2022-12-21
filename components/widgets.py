@@ -58,7 +58,7 @@ class ControlPanel:
         self.surface.blit(omega_text, (0.04 * self.width, 0.65 * self.height))
         self.omega_slider.draw()
 
-    def handle_event(self, event, time):
+    def handle_event(self, event):
         change_amplitude = self.amplitude_slider.handle_event(event,
                                                               self.left + self.sliders_left,
                                                               self.top + self.amplitude_slider_top)

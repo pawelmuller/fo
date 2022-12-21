@@ -221,7 +221,7 @@ def main():
                 pg.quit()
                 raise SystemExit
             for control_panel in control_panels:
-                control_panel.handle_event(event=event, time=time)
+                control_panel.handle_event(event=event)
 
         # Drawing main components
         draw_main_components(screen=screen)
