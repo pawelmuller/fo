@@ -44,10 +44,8 @@ animation_rectangle_width = SURFACE_WIDTH - control_rectangle_width
 animation_rectangle_height = SURFACE_HEIGHT
 animation_coordination_system_origin = (0.1 * animation_rectangle_width, 0.5 * animation_rectangle_height)
 
-
 ANIMATION_RECTANGLE = pg.Rect(0, 0, animation_rectangle_width, animation_rectangle_height)
 CONTROLS_RECTANGLE = pg.Rect(animation_rectangle_width, 0, control_rectangle_width, control_rectangle_height)
-
 
 control_panels_start_pos = (animation_rectangle_width, 0.15 * control_rectangle_height)
 control_panels_height = 0.15 * control_rectangle_height
