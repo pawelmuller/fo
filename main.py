@@ -59,7 +59,7 @@ def create_control_panels(screen, text_font, sub_header_font) -> [ControlPanel]:
     return control_panels
 
 
-def draw_coordination_system(screen):
+def draw_coordination_system(screen, header_font):
     pg.draw.line(surface=screen,
                  color=Colors.contrast_light,
                  start_pos=(animation_rectangle_width / 10, animation_rectangle_height / 10),
@@ -70,6 +70,12 @@ def draw_coordination_system(screen):
                  start_pos=(animation_rectangle_width / 10, animation_rectangle_height / 10 * 5),
                  end_pos=(animation_rectangle_width / 10 * 9, animation_rectangle_height / 10 * 5),
                  width=3)
+    text = header_font.render(f"A", True, Colors.contrast_light)
+    text_position = (
+        0.06 * animation_rectangle_width,
+        0.08 * animation_rectangle_height
+    )
+    screen.blit(text, text_position)
 
 
 def draw_grid(screen):
@@ -78,6 +84,29 @@ def draw_grid(screen):
                      (animation_rectangle_width / 10 * i, animation_rectangle_height))
         pg.draw.line(screen, Colors.background_semi_dark, (0, animation_rectangle_height / 10 * i),
                      (animation_rectangle_width, animation_rectangle_height / 10 * i))
+
+
+def draw_scale(screen, sub_header_font):
+    left_ratio = 0.07
+    descriptions = (
+        (3, (left_ratio, 0.2)),
+        (2, (left_ratio, 0.3)),
+        (1, (left_ratio, 0.4)),
+        (0, (left_ratio, 0.5)),
+        (-1, (left_ratio, 0.6)),
+        (-2, (left_ratio, 0.7)),
+        (-3, (left_ratio, 0.8)),
+    )
+
+    to_blit = []
+    for name, position_ratio in descriptions:
+        text = sub_header_font.render(f"{name}", True, Colors.contrast_light)
+        text_position = (
+            position_ratio[0] * animation_rectangle_width,
+            (position_ratio[1] - 0.02) * animation_rectangle_height
+        )
+        to_blit.append((text, text_position))
+    screen.blits(to_blit)
 
 
 def translate_graph_to_global_coordinates(points: [(float, float)]) -> [(float, float)]:
@@ -197,7 +226,8 @@ def main():
         # Drawing main components
         draw_main_components(screen=screen)
         draw_grid(screen=screen)
-        draw_coordination_system(screen=screen)
+        draw_coordination_system(screen=screen, header_font=header_font)
+        draw_scale(screen=screen, sub_header_font=sub_header_font)
         draw_control_panel_header(screen=screen, text_font=text_font, header_font=header_font)
         draw_control_panels(screen=screen, control_panels=control_panels)
 
