@@ -61,20 +61,17 @@ class ControlPanel:
                                                               self.left + self.sliders_left,
                                                               self.top + self.amplitude_slider_top)
         self.harmonic.amplitude = self.amplitude_slider.value
-        if change_amplitude and self.harmonic.sound is not None:
-            self.harmonic.sound.stop()
-            self.harmonic.calculate_sound(time=time)
-            self.harmonic.sound.play(loops=-1)
 
         change_omega = self.omega_slider.handle_event(event,
                                                       self.left + self.sliders_left,
                                                       self.top + self.omega_slider_top)
         if change_omega:
             self.harmonic.omega = self.omega_slider.value
-            if self.harmonic.sound is not None:
-                self.harmonic.sound.stop()
-                self.harmonic.calculate_sound(time=time)
-                self.harmonic.sound.play(loops=-1)
+
+        if (change_amplitude or change_omega) and self.harmonic.sound is not None:
+            self.harmonic.sound.stop()
+            self.harmonic.calculate_sound()
+            self.harmonic.sound.play(loops=-1)
 
 
 class Slider:

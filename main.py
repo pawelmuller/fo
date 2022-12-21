@@ -130,9 +130,9 @@ class Harmonic:
         self.points = points
         return points
 
-    def calculate_sound(self, time=0):
+    def calculate_sound(self):
         buffer = np.sin(
-            2 * np.pi * 220 * self.omega * self.number * np.arange(SOUND_SAMPLING_RATE) / SOUND_SAMPLING_RATE
+            2 * np.pi * 220 * self.omega * self.number * np.arange(SOUND_SAMPLING_RATE * 60) / SOUND_SAMPLING_RATE
         ).astype(np.float32)
         self.sound = pg.mixer.Sound(buffer)
         self.sound.set_volume(self.amplitude)
