@@ -24,12 +24,12 @@ class ControlPanel:
         self.omega_slider_top = 0.65 * self.height
         self.amplitude_slider = Slider(
             screen=self.surface,
-            value=0.5, maximum_value=1, minimum_value=0,
+            value=self.harmonic.amplitude, maximum_value=1, minimum_value=0,
             left=self.sliders_left, top=self.amplitude_slider_top
         )
         self.omega_slider = Slider(
             screen=self.surface,
-            value=0.5, maximum_value=1, minimum_value=0,
+            value=self.harmonic.omega, maximum_value=1, minimum_value=0,
             left=self.sliders_left, top=self.omega_slider_top
         )
 
