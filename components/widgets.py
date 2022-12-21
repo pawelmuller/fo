@@ -56,12 +56,25 @@ class ControlPanel:
         self.surface.blit(omega_text, (0.04 * self.width, 0.65 * self.height))
         self.omega_slider.draw()
 
-    def handle_event(self, event):
-        self.amplitude_slider.handle_event(event, self.left + self.sliders_left, self.top + self.amplitude_slider_top)
+    def handle_event(self, event, time):
+        change_amplitude = self.amplitude_slider.handle_event(event,
+                                                              self.left + self.sliders_left,
+                                                              self.top + self.amplitude_slider_top)
         self.harmonic.amplitude = self.amplitude_slider.value
+        if change_amplitude and self.harmonic.sound is not None:
+            self.harmonic.sound.stop()
+            self.harmonic.calculate_sound(time=time)
+            self.harmonic.sound.play(loops=-1)
 
-        self.omega_slider.handle_event(event, self.left + self.sliders_left, self.top + self.omega_slider_top)
-        self.harmonic.omega = self.omega_slider.value
+        change_omega = self.omega_slider.handle_event(event,
+                                                      self.left + self.sliders_left,
+                                                      self.top + self.omega_slider_top)
+        if change_omega:
+            self.harmonic.omega = self.omega_slider.value
+            if self.harmonic.sound is not None:
+                self.harmonic.sound.stop()
+                self.harmonic.calculate_sound(time=time)
+                self.harmonic.sound.play(loops=-1)
 
 
 class Slider:
@@ -121,11 +134,13 @@ class Slider:
         if event.type == pg.MOUSEBUTTONDOWN:
             if self.button_rect.collidepoint(mouse_relative_position):
                 self.hit = True
-                return True
+            return False
         elif event.type == pg.MOUSEBUTTONUP:
             self.hit = False
+            return True
         elif event.type == pg.MOUSEMOTION:
             if self.hit:
                 self.move(absolute_left)
-                return True
+                return False
+            return False
         return False

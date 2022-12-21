@@ -1,6 +1,7 @@
 from math import sin, cos
 
 import pygame as pg
+import numpy as np
 
 from components.constants import *
 from components.widgets import ControlPanel
@@ -103,30 +104,38 @@ def superpose_waves(wave_points: list[(float, float)]) -> [(float, float)]:
 
 
 class Harmonic:
-    def __init__(self, amplitude: float, omega: float, wave_length: float,
-                 number: int, color: Colors, is_on: bool = True):
+    def __init__(self, amplitude: float, omega: float,
+                 number: int, color: Colors, string_length: float = 2 * pi, is_on: bool = True):
         self.number = number
         self.amplitude = amplitude
         self.omega = omega
-        self.wave_length = wave_length
+        self.string_length = string_length
         self.color = color
         self.is_on = is_on
         self.points = []
+        self.sound = None
 
     def calculate(self, x: float, time: float) -> (float, float):
-        k = 2 * pi / self.wave_length
+        k = self.number * pi / self.string_length
         y = 2 * self.amplitude * sin(k * x) * cos(self.omega * time)
         return x, y
 
-    def calculate_wave_points(self, time) -> [(float, float)]:
+    def calculate_wave_points(self, time, points_amount=POINTS_AMOUNT) -> [(float, float)]:
         points = []
-        for i in range(POINTS_AMOUNT):
+        for i in range(points_amount):
             x = i * 2. * pi / POINTS_AMOUNT
             point = self.calculate(x, time)
             points.append(point)
 
         self.points = points
         return points
+
+    def calculate_sound(self, time=0):
+        buffer = np.sin(
+            2 * np.pi * 220 * self.omega * self.number * np.arange(SOUND_SAMPLING_RATE) / SOUND_SAMPLING_RATE
+        ).astype(np.float32)
+        self.sound = pg.mixer.Sound(buffer)
+        self.sound.set_volume(self.amplitude)
 
 
 class Wave:
@@ -157,6 +166,7 @@ class Wave:
 
 
 def main():
+    pg.mixer.pre_init(size=32)
     pg.init()
     pg.display.set_caption('Fala stojąca w strunie')
     screen = pg.display.set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
@@ -168,6 +178,12 @@ def main():
 
     control_panels = create_control_panels(screen=screen, text_font=text_font, sub_header_font=sub_header_font)
 
+    for harmonic in available_harmonics:
+        if harmonic.is_on is False:
+            continue
+        harmonic.calculate_sound()
+        harmonic.sound.play(loops=-1)
+
     time = 0
     while True:
         # Handling events
@@ -176,7 +192,7 @@ def main():
                 pg.quit()
                 raise SystemExit
             for control_panel in control_panels:
-                control_panel.handle_event(event=event)
+                control_panel.handle_event(event=event, time=time)
 
         # Drawing main components
         draw_main_components(screen=screen)
@@ -200,7 +216,7 @@ def main():
 
         # Refreshing screen
         pg.display.flip()
-        clock.tick(60)
+        clock.tick(REFRESH_RATE)
         time += .1
 
 
