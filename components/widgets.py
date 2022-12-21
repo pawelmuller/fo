@@ -25,12 +25,14 @@ class ControlPanel:
         self.amplitude_slider = Slider(
             screen=self.surface,
             value=self.harmonic.amplitude, maximum_value=1, minimum_value=0,
-            left=self.sliders_left, top=self.amplitude_slider_top
+            left=self.sliders_left, top=self.amplitude_slider_top,
+            font=font
         )
         self.omega_slider = Slider(
             screen=self.surface,
             value=self.harmonic.omega, maximum_value=1, minimum_value=0,
-            left=self.sliders_left, top=self.omega_slider_top
+            left=self.sliders_left, top=self.omega_slider_top,
+            font=font
         )
 
     def draw(self):
@@ -75,13 +77,14 @@ class ControlPanel:
 
 
 class Slider:
-    def __init__(self, screen, value, maximum_value, minimum_value, left, top, thickness=3):
+    def __init__(self, screen, value, maximum_value, minimum_value, left, top, font, thickness=3):
         self.screen = screen
         self.value = value
         self.maximum_value = maximum_value
         self.minimum_value = minimum_value
         self.left = left
         self.top = top
+        self.font = font
 
         self.rect_margin_left = 10
         self.rect_margin_top = 8
@@ -109,6 +112,10 @@ class Slider:
         )
         self.button_rect = self.button_surf.get_rect(center=pos)
         surf.blit(self.button_surf, self.button_rect)
+
+        value_text = self.font.render(f"{self.value:.2f}", True, Colors.contrast_light)
+        surf.blit(value_text, (self.width + 20, 0.5 * self.thickness - 5))
+
         self.button_rect.move_ip(self.left, self.top)
         self.screen.blit(surf, (self.left, self.top))
 
