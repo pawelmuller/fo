@@ -49,7 +49,7 @@ def create_control_panels(screen, text_font, sub_header_font) -> [ControlPanel]:
             screen=screen,
             harmonic=harmonic,
             left=control_panels_start_pos[0],
-            top=control_panels_start_pos[1] + control_panels_height * (harmonic.number - 1),
+            top=control_panels_start_pos[1] + int(control_panels_height * (harmonic.number - 1)),
             width=control_rectangle_width,
             height=control_panels_height,
             font=text_font,

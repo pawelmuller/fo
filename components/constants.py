@@ -15,6 +15,8 @@ class Colors:
     magenta = (255, 0, 255)
     yellow = (255, 255, 0)
 
+    gray = (128, 128, 128)
+
     # Backgrounds
     background_dark = (16, 23, 38)
     background_semi_dark = (38, 41, 61)

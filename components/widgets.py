@@ -19,6 +19,15 @@ class ControlPanel:
         self.sub_header_font = sub_header_font
         self.surface = pg.surface.Surface((self.width, self.height))
 
+        self.toggle_button_left = 0.75 * self.width
+        self.toggle_button_top = 0.1 * self.height
+        self.toggle_button = ToggleButton(
+            screen=self.surface,
+            left=self.toggle_button_left, top=self.toggle_button_top,
+            font=self.font,
+            initial_state=self.harmonic.is_on
+        )
+
         self.sliders_left = 0.1 * self.width
         self.amplitude_slider_top = 0.35 * self.height
         self.omega_slider_top = 0.65 * self.height
@@ -50,6 +59,8 @@ class ControlPanel:
         title_text = self.sub_header_font.render(f"{self.harmonic.number}. harmoniczna", True, Colors.contrast_light)
         self.surface.blit(title_text, (0.1 * self.width, 0.07 * self.height))
 
+        self.toggle_button.draw()
+
         amplitude_text = self.font.render("A", True, Colors.contrast_light_blue)
         self.surface.blit(amplitude_text, (0.04 * self.width, 0.35 * self.height))
         self.amplitude_slider.draw()
@@ -59,21 +70,31 @@ class ControlPanel:
         self.omega_slider.draw()
 
     def handle_event(self, event):
-        change_amplitude = self.amplitude_slider.handle_event(event,
-                                                              self.left + self.sliders_left,
-                                                              self.top + self.amplitude_slider_top)
-        self.harmonic.amplitude = self.amplitude_slider.value
+        change_toggle, state = self.toggle_button.handle_event(event,
+                                                               self.left + self.toggle_button_left,
+                                                               self.top + self.toggle_button_top)
+        if change_toggle:
+            state = self.toggle_button.state
+            self.harmonic.is_on = state
+            if state is False and self.harmonic.sound is not None:
+                self.harmonic.sound.stop()
 
-        change_omega = self.omega_slider.handle_event(event,
-                                                      self.left + self.sliders_left,
-                                                      self.top + self.omega_slider_top)
-        if change_omega:
-            self.harmonic.omega = self.omega_slider.value
+        if self.harmonic.is_on:
+            change_amplitude = self.amplitude_slider.handle_event(event,
+                                                                  self.left + self.sliders_left,
+                                                                  self.top + self.amplitude_slider_top)
+            self.harmonic.amplitude = self.amplitude_slider.value
 
-        if (change_amplitude or change_omega) and self.harmonic.sound is not None:
-            self.harmonic.sound.stop()
-            self.harmonic.calculate_sound()
-            self.harmonic.sound.play(loops=-1)
+            change_omega = self.omega_slider.handle_event(event,
+                                                          self.left + self.sliders_left,
+                                                          self.top + self.omega_slider_top)
+            if change_omega:
+                self.harmonic.omega = self.omega_slider.value
+
+            if (change_amplitude or change_omega) and self.harmonic.sound is not None:
+                self.harmonic.sound.stop()
+                self.harmonic.calculate_sound()
+                self.harmonic.sound.play(loops=-1)
 
 
 class Slider:
@@ -148,3 +169,57 @@ class Slider:
                 return False
             return False
         return False
+
+
+class ToggleButton:
+    def __init__(self, screen, left, top, font, initial_state=True):
+        background_rectangle = pg.Rect(0, 0, 10, 10)
+        pg.draw.rect(screen, Colors.gray, background_rectangle)
+
+        self.screen = screen
+        self.left = left
+        self.top = top
+        self.font = font
+        self.state = initial_state
+
+        self.width = 0.2 * control_rectangle_width
+        self.height = 0.2 * control_panels_height
+
+        self.surface = pg.surface.Surface((self.width, self.height))
+        self.background_rectangle = pg.Rect(0, 0, self.width, self.height)
+
+    def draw(self):
+        pg.draw.rect(self.surface, Colors.gray, self.background_rectangle)
+
+        if self.state:
+            rectangle = pg.Rect(0.4 * self.width, 0, 0.6 * self.width, self.height)
+            pg.draw.rect(self.surface, Colors.green, rectangle)
+
+            text = self.font.render("On", True, Colors.black)
+            self.surface.blit(text, (0.55 * self.width, 0.05 * self.height))
+
+        else:
+            rectangle = pg.Rect(0, 0, 0.6 * self.width, self.height)
+            pg.draw.rect(self.surface, Colors.red, rectangle)
+
+            text = self.font.render("Off", True, Colors.white)
+            self.surface.blit(text, (0.05 * self.width, 0.05 * self.height))
+
+        self.screen.blit(self.surface, (self.left, self.top))
+
+    def change_state(self):
+        self.state = not self.state
+        self.draw()
+
+    def handle_event(self, event, absolute_left, absolute_top):
+        mouse_absolute_position_x, mouse_absolute_position_y = pg.mouse.get_pos()
+        mouse_relative_position = (
+            mouse_absolute_position_x - absolute_left,
+            mouse_absolute_position_y - absolute_top
+        )
+
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.background_rectangle.collidepoint(mouse_relative_position):
+                self.change_state()
+                return True, self.state
+        return False, self.state
