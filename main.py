@@ -35,15 +35,6 @@ def draw_control_panel_header(screen, header_font, sub_header_font):
     screen.blit(header_surface, (animation_rectangle_width, 0))
 
 
-def draw_control_panel_footer(screen, sub_header_font):
-    header_surface = pg.surface.Surface((control_rectangle_width, control_panels_height * 2 / 3))
-    header_surface.set_colorkey(Colors.black)
-
-    sub_header_font = sub_header_font.render("Superpozycja fal", True, Colors.white)
-    header_surface.blit(sub_header_font, (0.05 * control_rectangle_width, 0.05 * control_panels_height))
-    screen.blit(header_surface, (animation_rectangle_width, 0))
-
-
 def draw_control_panels(screen, control_panels: list[ControlPanel]):
     surfaces = []
     for control_panel in control_panels:
@@ -129,17 +120,6 @@ def translate_graph_to_global_coordinates(points: [(float, float)]) -> [(float, 
         )
         translated_points.append(translated_point)
     return translated_points
-
-
-def superpose_waves(wave_points: list[(float, float)]) -> [(float, float)]:
-    superposed_wave_points = []
-    for i in range(POINTS_AMOUNT):
-        x = wave_points[0][i][0]
-        y = 0
-        for j in range(len(wave_points)):
-            y += wave_points[j][i][1]
-        superposed_wave_points.append((x, y))
-    return superposed_wave_points
 
 
 class Harmonic:
