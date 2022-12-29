@@ -132,7 +132,7 @@ class Harmonic:
         self.color = color
         self.is_on = is_on
 
-        self.frequency = base_frequency * self.number
+        self.frequency = base_frequency * pow(2, self.number - 1)
         self.omega = 2 * pi * self.frequency
         self.wave_length = 2 * string_length / number
         self.velocity = self.frequency * self.wave_length
