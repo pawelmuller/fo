@@ -49,10 +49,6 @@ animation_coordination_system_origin = (0.1 * animation_rectangle_width, 0.5 * a
 ANIMATION_RECTANGLE = pg.Rect(0, 0, animation_rectangle_width, animation_rectangle_height)
 CONTROLS_RECTANGLE = pg.Rect(animation_rectangle_width, 0, control_rectangle_width, control_rectangle_height)
 
-control_panels_start_pos = (animation_rectangle_width, 0.15 * control_rectangle_height)
 control_panels_height = 0.15 * control_rectangle_height
-
-max_harmonics = 5
-available_harmonics_properties = [(i, 2 * pi / i) for i in range(1, max_harmonics + 1)]
-
-line_colors = (Colors.contrast_light, Colors.blue, Colors.cyan, Colors.green, Colors.magenta)
+control_panels_header_height = control_panels_height * 1.5
+control_panels_start_pos = (animation_rectangle_width, control_panels_header_height)

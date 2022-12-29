@@ -33,14 +33,8 @@ class ControlPanel:
         self.omega_slider_top = 0.65 * self.height
         self.amplitude_slider = Slider(
             screen=self.surface,
-            value=self.harmonic.amplitude, maximum_value=1, minimum_value=0,
+            value=self.harmonic.amplitude, maximum_value=1.2, minimum_value=0,
             left=self.sliders_left, top=self.amplitude_slider_top,
-            font=font
-        )
-        self.omega_slider = Slider(
-            screen=self.surface,
-            value=self.harmonic.omega, maximum_value=1, minimum_value=0,
-            left=self.sliders_left, top=self.omega_slider_top,
             font=font
         )
 
@@ -65,9 +59,14 @@ class ControlPanel:
         self.surface.blit(amplitude_text, (0.04 * self.width, 0.35 * self.height))
         self.amplitude_slider.draw()
 
-        omega_text = self.font.render("ω", True, Colors.contrast_light_blue)
-        self.surface.blit(omega_text, (0.04 * self.width, 0.65 * self.height))
-        self.omega_slider.draw()
+        frequency_text = self.font.render(f"f = {self.harmonic.frequency} Hz", True, Colors.contrast_light_blue)
+        self.surface.blit(frequency_text, (0.04 * self.width, 0.65 * self.height))
+
+        velocity_text = self.font.render(f"v = {self.harmonic.velocity:.2f} m/s", True, Colors.contrast_light_blue)
+        self.surface.blit(velocity_text, (0.3 * self.width, 0.65 * self.height))
+
+        omega_text = self.font.render(f"ω = {self.harmonic.frequency * 2} PI", True, Colors.contrast_light_blue)
+        self.surface.blit(omega_text, (0.7 * self.width, 0.65 * self.height))
 
     def handle_event(self, event):
         change_toggle, state = self.toggle_button.handle_event(event,
@@ -85,13 +84,7 @@ class ControlPanel:
                                                                   self.top + self.amplitude_slider_top)
             self.harmonic.amplitude = self.amplitude_slider.value
 
-            change_omega = self.omega_slider.handle_event(event,
-                                                          self.left + self.sliders_left,
-                                                          self.top + self.omega_slider_top)
-            if change_omega:
-                self.harmonic.omega = self.omega_slider.value
-
-            if (change_amplitude or change_omega) and self.harmonic.sound is not None:
+            if change_amplitude and self.harmonic.sound is not None:
                 self.harmonic.sound.stop()
                 self.harmonic.calculate_sound()
                 self.harmonic.sound.play(loops=-1)

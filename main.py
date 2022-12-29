@@ -12,16 +12,26 @@ def draw_main_components(screen):
     pg.draw.rect(screen, Colors.background_semi_dark, CONTROLS_RECTANGLE)
 
 
-def draw_control_panel_header(screen, text_font, header_font):
-    header_surface = pg.surface.Surface((control_rectangle_width, control_panels_height))
+def draw_control_panel_header(screen, header_font, sub_header_font):
+    header_surface = pg.surface.Surface((control_rectangle_width, control_panels_header_height))
     header_surface.set_colorkey(Colors.black)
 
-    header = header_font.render("Właściwości fal i harmonicznych", True, Colors.white)
-    text_1 = text_font.render("A - amplituda", True, Colors.contrast_light_blue)
-    text_2 = text_font.render("ω - częstość kołowa", True, Colors.contrast_light_blue)
-    header_surface.blit(header, (0.05 * control_rectangle_width, 0.1 * control_panels_height))
-    header_surface.blit(text_1, (0.05 * control_rectangle_width, 0.5 * control_panels_height))
-    header_surface.blit(text_2, (0.05 * control_rectangle_width, 0.7 * control_panels_height))
+    header = header_font.render("Właściwości harmonicznych", True, Colors.white)
+    header_surface.blit(header, (0.05 * control_rectangle_width, 0.1 * control_panels_header_height))
+
+    sub_header_font = sub_header_font.render("Superpozycja harmonicznych", True, Colors.white)
+    header_surface.blit(sub_header_font, (0.1 * control_rectangle_width, 0.42 * control_panels_header_height))
+
+    pg.draw.circle(
+        surface=header_surface,
+        color=Colors.amp_orange,
+        center=(
+            0.05 * control_rectangle_width,
+            0.5 * control_panels_header_height
+        ),
+        radius=ControlPanel.color_circle_radius
+    )
+
     screen.blit(header_surface, (animation_rectangle_width, 0))
 
 
@@ -133,20 +143,26 @@ def superpose_waves(wave_points: list[(float, float)]) -> [(float, float)]:
 
 
 class Harmonic:
-    def __init__(self, amplitude: float, omega: float,
+    def __init__(self, amplitude: float, base_frequency: float,
                  number: int, color: Colors, string_length: float = 2 * pi, is_on: bool = True):
         self.number = number
         self.amplitude = amplitude
-        self.omega = omega
+        self.base_frequency = base_frequency
         self.string_length = string_length
         self.color = color
         self.is_on = is_on
+
+        self.frequency = base_frequency * self.number
+        self.omega = 2 * pi * self.frequency
+        self.wave_length = 2 * string_length / number
+        self.velocity = self.frequency * self.wave_length
+
         self.points = []
         self.sound = None
 
     def calculate(self, x: float, time: float) -> (float, float):
         k = self.number * pi / self.string_length
-        y = 2 * self.amplitude * sin(k * x) * cos(self.omega * time)
+        y = 2 * self.amplitude * sin(k * x) * cos(self.omega / graph_slow_factor * time)
         return x, y
 
     def calculate_wave_points(self, time, points_amount=POINTS_AMOUNT) -> [(float, float)]:
@@ -161,7 +177,7 @@ class Harmonic:
 
     def calculate_sound(self):
         buffer = np.sin(
-            2 * np.pi * 220 * self.omega * self.number * np.arange(SOUND_SAMPLING_RATE * 60) / SOUND_SAMPLING_RATE
+            2 * np.pi * self.frequency * np.arange(SOUND_SAMPLING_RATE * 60) / SOUND_SAMPLING_RATE
         ).astype(np.float32)
         self.sound = pg.mixer.Sound(buffer)
         self.sound.set_volume(self.amplitude)
@@ -251,12 +267,14 @@ def main():
 
 
 if __name__ == "__main__":
+    graph_slow_factor = 10000
+    base_frequency = 110
     available_harmonics = [
-        Harmonic(number=1, amplitude=0, omega=0.5, color=Colors.contrast_light),
-        Harmonic(number=2, amplitude=0, omega=0.5, color=Colors.magenta),
-        Harmonic(number=3, amplitude=0, omega=0.5, color=Colors.yellow),
-        Harmonic(number=4, amplitude=0, omega=0.5, color=Colors.green),
-        Harmonic(number=5, amplitude=0, omega=0.5, color=Colors.cyan),
+        Harmonic(number=1, amplitude=0, base_frequency=base_frequency, color=Colors.contrast_light),
+        Harmonic(number=2, amplitude=0, base_frequency=base_frequency, color=Colors.magenta),
+        Harmonic(number=3, amplitude=0, base_frequency=base_frequency, color=Colors.yellow),
+        Harmonic(number=4, amplitude=0, base_frequency=base_frequency, color=Colors.green),
+        Harmonic(number=5, amplitude=0, base_frequency=base_frequency, color=Colors.cyan),
     ]
 
     main()
