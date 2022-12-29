@@ -224,7 +224,7 @@ def main():
         draw_grid(screen=screen)
         draw_coordination_system(screen=screen, header_font=header_font)
         draw_scale(screen=screen, sub_header_font=sub_header_font)
-        draw_control_panel_header(screen=screen, text_font=text_font, header_font=header_font)
+        draw_control_panel_header(screen=screen, header_font=header_font, sub_header_font=sub_header_font)
         draw_control_panels(screen=screen, control_panels=control_panels)
 
         # Wave physics and superposition
@@ -248,13 +248,13 @@ def main():
 
 if __name__ == "__main__":
     graph_slow_factor = 10000
-    base_frequency = 110
+    global_base_frequency = 110
     available_harmonics = [
-        Harmonic(number=1, amplitude=0, base_frequency=base_frequency, color=Colors.contrast_light),
-        Harmonic(number=2, amplitude=0, base_frequency=base_frequency, color=Colors.magenta),
-        Harmonic(number=3, amplitude=0, base_frequency=base_frequency, color=Colors.yellow),
-        Harmonic(number=4, amplitude=0, base_frequency=base_frequency, color=Colors.green),
-        Harmonic(number=5, amplitude=0, base_frequency=base_frequency, color=Colors.cyan),
+        Harmonic(number=1, amplitude=0, base_frequency=global_base_frequency, color=Colors.contrast_light),
+        Harmonic(number=2, amplitude=0, base_frequency=global_base_frequency, color=Colors.magenta),
+        Harmonic(number=3, amplitude=0, base_frequency=global_base_frequency, color=Colors.yellow),
+        Harmonic(number=4, amplitude=0, base_frequency=global_base_frequency, color=Colors.green),
+        Harmonic(number=5, amplitude=0, base_frequency=global_base_frequency, color=Colors.cyan),
     ]
 
     main()
